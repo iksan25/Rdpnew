@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Stok - Sistem Inventory Bahan Ajar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                📚 <span>Inventory Bahan Ajar</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="stok.html" class="active">Manajemen Stok</a></li>
+                <li><a href="tracking.html">Tracking</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Manajemen Stok Bahan Ajar</h1>
+            <p>Kelola stok masuk dan keluar bahan ajar</p>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Daftar Stok Bahan Ajar</h2>
+                <div class="flex gap-2">
+                    <button class="btn btn-success" onclick="showModal('tambahModal')">
+                        ➕ Tambah Stok
+                    </button>
+                    <button class="btn btn-danger" onclick="showModal('kurangModal')">
+                        ➖ Kurangi Stok
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Cari bahan ajar...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="kategoriFilter">Kategori:</label>
+                        <select id="kategoriFilter">
+                            <option value="Semua">Semua Kategori</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="stokFilter">Status Stok:</label>
+                        <select id="stokFilter">
+                            <option value="Semua">Semua</option>
+                            <option value="Aman">Aman (≥20)</option>
+                            <option value="Sedang">Sedang (10-19)</option>
+                            <option value="Rendah">Rendah (<10)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Nama Bahan Ajar</th>
+                                <th>Kategori</th>
+                                <th>Penerbit</th>
+                                <th>Stok Tersedia</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>Tidak ada data ditemukan</h3>
+                    <p>Coba ubah filter atau kata kunci pencarian Anda</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Stok -->
+    <div id="tambahModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Tambah Stok Bahan Ajar</h3>
+                <button class="modal-close" onclick="hideModal('tambahModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="tambahForm">
+                    <div class="form-group">
+                        <label for="tambahBahanAjar">Pilih Bahan Ajar *</label>
+                        <select id="tambahBahanAjar" required>
+                            <option value="">-- Pilih Bahan Ajar --</option>
+                        </select>
+                    </div>
+
+                    <div id="tambahInfoBox" style="display: none; background: var(--bg-color); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                            <div style="margin-bottom: 0.5rem;"><strong>Kode:</strong> <span id="tambahKode">-</span></div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Kategori:</strong> <span id="tambahKategori">-</span></div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Stok Saat Ini:</strong> <span id="tambahStokSekarang">-</span> unit</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tambahJumlah">Jumlah Stok Masuk *</label>
+                        <input type="number" id="tambahJumlah" min="1" required placeholder="Masukkan jumlah stok">
+                        <div class="helper-text">Minimal 1 unit</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tambahKeterangan">Keterangan *</label>
+                        <textarea id="tambahKeterangan" required placeholder="Contoh: Pembelian dari supplier, Donasi, dll"></textarea>
+                        <div class="helper-text">Jelaskan alasan penambahan stok</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideModal('tambahModal')">Batal</button>
+                <button type="submit" form="tambahForm" class="btn btn-success">✓ Tambah Stok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kurangi Stok -->
+    <div id="kurangModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➖ Kurangi Stok Bahan Ajar</h3>
+                <button class="modal-close" onclick="hideModal('kurangModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="kurangForm">
+                    <div class="form-group">
+                        <label for="kurangBahanAjar">Pilih Bahan Ajar *</label>
+                        <select id="kurangBahanAjar" required>
+                            <option value="">-- Pilih Bahan Ajar --</option>
+                        </select>
+                    </div>
+
+                    <div id="kurangInfoBox" style="display: none; background: var(--bg-color); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                            <div style="margin-bottom: 0.5rem;"><strong>Kode:</strong> <span id="kurangKode">-</span></div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Kategori:</strong> <span id="kurangKategori">-</span></div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Stok Tersedia:</strong> <span id="kurangStokSekarang">-</span> unit</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kurangJumlah">Jumlah Stok Keluar *</label>
+                        <input type="number" id="kurangJumlah" min="1" required placeholder="Masukkan jumlah stok">
+                        <div class="helper-text">Tidak boleh melebihi stok tersedia</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kurangKeterangan">Keterangan *</label>
+                        <textarea id="kurangKeterangan" required placeholder="Contoh: Peminjaman kelas X-A, Rusak, Hilang, dll"></textarea>
+                        <div class="helper-text">Jelaskan alasan pengurangan stok</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideModal('kurangModal')">Batal</button>
+                <button type="submit" form="kurangForm" class="btn btn-danger">✓ Kurangi Stok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/stok-app.js"></script>
+</body>
+</html>

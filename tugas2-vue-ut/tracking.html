@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Stok - Sistem Inventory Bahan Ajar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                📚 <span>Inventory Bahan Ajar</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="stok.html">Manajemen Stok</a></li>
+                <li><a href="tracking.html" class="active">Tracking</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Tracking Pergerakan Stok</h1>
+            <p>Pantau riwayat semua transaksi stok masuk dan keluar</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="totalTransaksi">0</div>
+                        <div class="stat-label">Total Transaksi</div>
+                    </div>
+                    <div class="stat-icon primary">📊</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="stokMasuk">0</div>
+                        <div class="stat-label">Stok Masuk</div>
+                    </div>
+                    <div class="stat-icon success">📥</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="stokKeluar">0</div>
+                        <div class="stat-label">Stok Keluar</div>
+                    </div>
+                    <div class="stat-icon danger">📤</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="transaksiHariIni">0</div>
+                        <div class="stat-label">Transaksi Hari Ini</div>
+                    </div>
+                    <div class="stat-icon warning">📅</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Riwayat Transaksi Stok</h2>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary" onclick="exportData()">
+                        📄 Export Data
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Cari bahan ajar atau keterangan...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="bahanAjarFilter">Bahan Ajar:</label>
+                        <select id="bahanAjarFilter">
+                            <option value="Semua">Semua Bahan Ajar</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="jenisFilter">Jenis:</label>
+                        <select id="jenisFilter">
+                            <option value="Semua">Semua</option>
+                            <option value="masuk">Stok Masuk</option>
+                            <option value="keluar">Stok Keluar</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="tanggalFilter">Tanggal:</label>
+                        <input type="date" id="tanggalFilter">
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div id="tableView" style="display: block;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal & Waktu</th>
+                                    <th>Kode</th>
+                                    <th>Nama Bahan Ajar</th>
+                                    <th>Jenis</th>
+                                    <th>Jumlah</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Data akan diisi oleh JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Timeline View -->
+                <div id="timelineView" style="display: none;">
+                    <div class="timeline" id="timelineContainer">
+                        <!-- Timeline akan diisi oleh JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>Tidak ada data tracking ditemukan</h3>
+                    <p>Coba ubah filter atau kata kunci pencarian Anda</p>
+                </div>
+
+                <!-- View Toggle -->
+                <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="switchView('table')">
+                        📊 Tampilan Tabel
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchView('timeline')">
+                        📅 Tampilan Timeline
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Stats Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h2>Statistik Per Bahan Ajar</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bahan Ajar</th>
+                                <th>Stok Masuk</th>
+                                <th>Stok Keluar</th>
+                                <th>Stok Saat Ini</th>
+                                <th>Perubahan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                            <!-- Stats akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/tracking-app.js"></script>
+</body>
+</html>

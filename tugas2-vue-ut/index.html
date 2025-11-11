@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inventory Bahan Ajar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                📚 <span>Inventory Bahan Ajar</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="stok.html">Manajemen Stok</a></li>
+                <li><a href="tracking.html">Tracking</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Dashboard Inventory</h1>
+            <p>Selamat datang di Sistem Manajemen Inventory Bahan Ajar</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="totalBahanAjar">0</div>
+                        <div class="stat-label">Total Bahan Ajar</div>
+                    </div>
+                    <div class="stat-icon primary">📚</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="totalStok">0</div>
+                        <div class="stat-label">Total Stok</div>
+                    </div>
+                    <div class="stat-icon success">📦</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="stokRendah">0</div>
+                        <div class="stat-label">Stok Rendah</div>
+                    </div>
+                    <div class="stat-icon warning">⚠️</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value" id="kategoriTerbanyak">-</div>
+                        <div class="stat-label">Kategori Terbanyak</div>
+                    </div>
+                    <div class="stat-icon danger">🏷️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Daftar Bahan Ajar</h2>
+                <a href="stok.html" class="btn btn-primary">
+                    ➕ Kelola Stok
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Cari bahan ajar...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="kategoriFilter">Kategori:</label>
+                        <select id="kategoriFilter">
+                            <option value="Semua">Semua Kategori</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Nama Bahan Ajar</th>
+                                <th>Kategori</th>
+                                <th>Penerbit</th>
+                                <th>Tahun</th>
+                                <th>Stok</th>
+                                <th>Status</th>
+                                <th>Harga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>Tidak ada data ditemukan</h3>
+                    <p>Coba ubah filter atau kata kunci pencarian Anda</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h2>Aktivitas Terbaru</h2>
+                <a href="tracking.html" class="btn btn-secondary">
+                    Lihat Semua
+                </a>
+            </div>
+            <div class="card-body">
+                <div id="recentActivity">
+                    <!-- Recent activity akan diisi oleh JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dataBahanAjar.js"></script>
+    <script>
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatistik();
+            loadKategoriFilter();
+            loadTableData();
+            loadRecentActivity();
+
+            // Event Listeners
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('kategoriFilter').addEventListener('change', filterTable);
+        });
+
+        // Load Statistics
+        function loadStatistik() {
+            const stats = getStatistik();
+            document.getElementById('totalBahanAjar').textContent = stats.totalBahanAjar;
+            document.getElementById('totalStok').textContent = stats.totalStok;
+            document.getElementById('stokRendah').textContent = stats.stokRendah;
+            document.getElementById('kategoriTerbanyak').textContent = stats.kategoriTerbanyak;
+        }
+
+        // Load Kategori Filter
+        function loadKategoriFilter() {
+            const select = document.getElementById('kategoriFilter');
+            kategoriList.forEach(kategori => {
+                const option = document.createElement('option');
+                option.value = kategori;
+                option.textContent = kategori;
+                select.appendChild(option);
+            });
+        }
+
+        // Load Table Data
+        function loadTableData(data = null) {
+            const tableBody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+            const bahanAjarList = data || getAllBahanAjar();
+
+            tableBody.innerHTML = '';
+
+            if (bahanAjarList.length === 0) {
+                emptyState.style.display = 'block';
+                tableBody.parentElement.parentElement.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tableBody.parentElement.parentElement.style.display = 'table';
+
+            bahanAjarList.forEach(item => {
+                const row = document.createElement('tr');
+
+                // Determine stock status
+                let stockStatus, stockBadge, stockIndicator;
+                if (item.stok >= 20) {
+                    stockStatus = 'Aman';
+                    stockBadge = 'badge-success';
+                    stockIndicator = 'high';
+                } else if (item.stok >= 10) {
+                    stockStatus = 'Sedang';
+                    stockBadge = 'badge-warning';
+                    stockIndicator = 'medium';
+                } else {
+                    stockStatus = 'Rendah';
+                    stockBadge = 'badge-danger';
+                    stockIndicator = 'low';
+                }
+
+                row.innerHTML = `
+                    <td><strong>${item.kode}</strong></td>
+                    <td>
+                        <div style="font-weight: 500;">${item.nama}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">${item.deskripsi}</div>
+                    </td>
+                    <td><span class="badge badge-primary">${item.kategori}</span></td>
+                    <td>${item.penerbit}</td>
+                    <td>${item.tahun}</td>
+                    <td>
+                        <div class="stock-level">
+                            <span class="stock-indicator ${stockIndicator}"></span>
+                            <strong>${item.stok}</strong>
+                        </div>
+                    </td>
+                    <td><span class="badge ${stockBadge}">${stockStatus}</span></td>
+                    <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter Table
+        function filterTable() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const kategoriValue = document.getElementById('kategoriFilter').value;
+
+            let filteredData = getAllBahanAjar();
+
+            // Filter by category
+            if (kategoriValue !== 'Semua') {
+                filteredData = getBahanAjarByKategori(kategoriValue);
+            }
+
+            // Filter by search
+            if (searchValue) {
+                filteredData = filteredData.filter(item =>
+                    item.nama.toLowerCase().includes(searchValue) ||
+                    item.kode.toLowerCase().includes(searchValue) ||
+                    item.penerbit.toLowerCase().includes(searchValue) ||
+                    item.deskripsi.toLowerCase().includes(searchValue)
+                );
+            }
+
+            loadTableData(filteredData);
+        }
+
+        // Load Recent Activity
+        function loadRecentActivity() {
+            const recentActivity = document.getElementById('recentActivity');
+            const tracking = getAllTracking().slice(0, 5); // Get last 5 activities
+
+            if (tracking.length === 0) {
+                recentActivity.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Belum ada aktivitas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            recentActivity.innerHTML = '<div class="timeline"></div>';
+            const timeline = recentActivity.querySelector('.timeline');
+
+            tracking.forEach(track => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+
+                const jenisText = track.jenis === 'masuk' ? 'Stok Masuk' : 'Stok Keluar';
+                const jenisBadge = track.jenis === 'masuk' ? 'badge-success' : 'badge-danger';
+
+                timelineItem.innerHTML = `
+                    <div class="timeline-marker ${track.jenis}"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">${track.namaBahanAjar}</div>
+                            <div class="timeline-date">${track.tanggal} ${track.waktu}</div>
+                        </div>
+                        <div class="timeline-body">
+                            <span class="badge ${jenisBadge}">${jenisText}</span>
+                            <strong>${track.jumlah} unit</strong> - ${track.keterangan}
+                        </div>
+                    </div>
+                `;
+
+                timeline.appendChild(timelineItem);
+            });
+        }
+    </script>
+</body>
+</html>
